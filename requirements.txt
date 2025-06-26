@@ -1,0 +1,16 @@
+asgiref==3.8.1
+certifi==2025.6.15
+charset-normalizer==3.4.2
+decorator==5.2.1
+Django==4.2.20
+django-filter==25.1
+djangorestframework==3.16.0
+idna==3.10
+psycopg2==2.9.10
+py==1.11.0
+python-decouple==3.8
+requests==2.32.4
+retry==0.9.2
+sqlparse==0.5.3
+tzdata==2025.2
+urllib3==2.5.0

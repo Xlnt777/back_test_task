@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <label>Введите категорию:</label>
+    <input type="text" id="category-input" name="category" autocomplete="off">
+    <input type="hidden" id="category-id" name="category_id">
+    <input type="hidden" id="category-shard" name="category_shard">
+    <input type="hidden" id="category-query" name="category_query">
+    <ul id="suggestions" style="list-style: none; border: 1px solid #ccc; padding: 0; margin: 0; max-height: 150px; overflow-y: auto; display: none;"></ul>
+    <button type="submit">Найти</button>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('category-input');
+    const hiddenId = document.getElementById('category-id');
+    const hiddenShard = document.getElementById('category-shard');
+    const hiddenQuery = document.getElementById('category-query');
+    const suggestions = document.getElementById('suggestions');
+
+    input.addEventListener('input', function () {
+        const query = this.value;
+        if (query.length < 2) {
+            suggestions.style.display = 'none';
+            suggestions.innerHTML = '';
+            return;
+        }
+
+        fetch(`/api/categories/autocomplete/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                suggestions.innerHTML = '';
+                if (data.length === 0) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item.label;
+                    li.style.padding = '5px';
+                    li.style.cursor = 'pointer';
+                    li.addEventListener('click', () => {
+                        input.value = item.label;
+                        hiddenId.value = item.id;
+                        hiddenShard.value = item.shard;
+                        hiddenQuery.value = item.query;    
+                        suggestions.style.display = 'none';
+                    });
+                    suggestions.appendChild(li);
+                });
+                suggestions.style.display = 'block';
+            });
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!suggestions.contains(event.target) && event.target !== input) {
+            suggestions.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
